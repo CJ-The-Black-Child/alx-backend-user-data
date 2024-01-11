@@ -9,8 +9,8 @@ import logging
 import mysql.connector
 
 
-
 PII_FIELDS = ("name", "email", "phone", "ssn", "password")
+
 
 def filter_datum(
     fields: List[str], redaction: str, message: str, separator: str
@@ -19,7 +19,9 @@ def filter_datum(
     Log line filtering
     """
     for field in fields:
-        message = re.sub(f"{field}=[^{separator}]*", f"{field}={redaction}", message)
+        message = re.sub(
+            f"{field}=[^{separator}]*", f"{field}={redaction}", message
+        )
     return message
 
 
@@ -38,6 +40,7 @@ class RedactingFormatter(logging.Formatter):
         message = super().format(record)
         return self.pattern.sub(r"\1=" + self.REDACTION, message)
 
+
 def get_logger() -> logging.Logger:
     """
     Returns a logging.Logger object.
@@ -50,6 +53,7 @@ def get_logger() -> logging.Logger:
     logger.addHandler(handler)
     return logger
 
+
 def get_db() -> mysql.connector.connection.MySQLConnection:
     """
     Returns a connector to the database.
@@ -58,9 +62,27 @@ def get_db() -> mysql.connector.connection.MySQLConnection:
         host=os.getenv("PERSONAL_DATA_DB_HOST", "localhost"),
         user=os.getenv("PERSONAL_DATA_DB_USERNAME", "root"),
         password=os.getenv("PERSONAL_DATA_DB_PASSWORD", ""),
-        database=os.getenv("PERSONAL_DATA_DB_NAME",""),
+        database=os.getenv("PERSONAL_DATA_DB_NAME", ""),
     )
     return connection
+
+
+def main():
+    """
+    Main function
+    """
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute("SELECT * FROM users;")
+    logger = get_logger()
+    for row in cursor:
+        message = "; ".join(
+            f"{field}={value}" for field, value in zip(PII_FIELDS, row)
+        )
+        logger.info(message)
+    cursor.close()
+    db.close()
+
 
 if __name__ == "__main__":
     main()
