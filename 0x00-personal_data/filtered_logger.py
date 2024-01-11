@@ -2,9 +2,11 @@
 """
 Filtering logs
 """
+import os
 import re
 from typing import List
 import logging
+import mysql.connector
 
 
 
@@ -47,6 +49,18 @@ def get_logger() -> logging.Logger:
     handler.setFormatter(RedactingFormatter(PII_FIELDS))
     logger.addHandler(handler)
     return logger
+
+def get_db() -> mysql.connector.connection.MySQLConnection:
+    """
+    Returns a connector to the database.
+    """
+    connection = mysql.connector.connect(
+        host=os.getenv("PERSONAL_DATA_DB_HOST", "localhost"),
+        user=os.getenv("PERSONAL_DATA_DB_USERNAME", "root"),
+        password=os.getenv("PERSONAL_DATA_DB_PASSWORD", ""),
+        database=os.getenv("PERSONAL_DATA_DB_NAME",""),
+    )
+    return connection
 
 if __name__ == "__main__":
     main()
