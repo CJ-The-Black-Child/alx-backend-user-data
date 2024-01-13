@@ -26,17 +26,22 @@ def filter_datum(
 
 
 class RedactingFormatter(logging.Formatter):
-    """Redacting Formatter class"""
+    """
+    Redacting Formatter class
+    """
 
     REDACTION = "***"
     FORMAT = "[HOLBERTON] %(name)s %(levelname)s %(asctime)-15s: %(message)s"
 
-    def __init__(self, fields):
+    def __init__(self, fields: List[str]):
         super().__init__(self.FORMAT)
         self.fields = fields
         self.pattern = re.compile(f'({"|".join(fields)})=[^;]*')
 
     def format(self, record: logging.LogRecord) -> str:
+        """
+        Formats the log recoard and redacts sensitive information.
+        """
         message = super().format(record)
         return self.pattern.sub(r"\1=" + self.REDACTION, message)
 
