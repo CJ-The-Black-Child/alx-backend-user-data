@@ -10,6 +10,23 @@ class Auth:
     """
     This class does manage the API Auth
     """
+
+    def require_auth(self, path: str, excluded_paths: List[str]) -> bool:
+        """
+        Method to require auth
+        """
+        if path is None or excluded_paths is None or not excluded_paths:
+            return True
+
+        if path[-1] != "/":
+            path += "/"
+
+        if path in excluded_paths:
+            return False
+
+        return True
+
+
     def require_auth(self, path: str, excluded_paths: List[str]) -> bool:
         """
         Method to require auth
@@ -21,7 +38,7 @@ class Auth:
         """
         Method to handle authorization header
         """
-        None
+        return None
 
 
     def current_user(self, request=None) -> TypeVar('User'):
