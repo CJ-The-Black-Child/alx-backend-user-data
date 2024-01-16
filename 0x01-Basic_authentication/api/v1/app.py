@@ -22,12 +22,17 @@ if getenv('AUTH_TYPE') == 'basic_auth':
 else:
     auth = Auth()
 
+
 @app.before_request
 def before_request_func():
     if auth is None:
         return
     if not auth.require_auth(
-        request.path, ['/api/v1/status/', '/api/v1/unauthorized/', '/api/v1/forbidden/']
+        request.path, [
+            '/api/v1/status/',
+            '/api/v1/unauthorized/',
+            '/api/v1/forbidden/'
+        ]
     ):
         return
     if auth.authorization_header(request) is None:
@@ -41,6 +46,7 @@ def not_found(error) -> str:
     """ Not found handler
     """
     return jsonify({"error": "Not found"}), 404
+
 
 @app.errorhandler(401)
 def unauthorized(error) -> str:
