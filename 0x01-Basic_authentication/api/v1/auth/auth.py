@@ -27,18 +27,13 @@ class Auth:
         return True
 
 
-    def require_auth(self, path: str, excluded_paths: List[str]) -> bool:
-        """
-        Method to require auth
-        """
-        return False
-
-
     def authorization_header(self, request=None) -> str:
         """
         Method to handle authorization header
         """
-        return None
+        if request is None:
+            return None
+        return request.headers.get('Authorization')
 
 
     def current_user(self, request=None) -> TypeVar('User'):
