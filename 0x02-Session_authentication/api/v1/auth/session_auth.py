@@ -4,6 +4,7 @@ Session Auth module
 """
 from api.v1.auth.auth import Auth
 import uuid
+from typing import Optional
 
 
 class SessionAuth(Auth):
@@ -24,8 +25,11 @@ class SessionAuth(Auth):
         self.user_id_by_session_id[session_id] = user_id
 
         return session_id
-    
-    def user_id_for_session_id(self, session_id: Optional[str] = None) -> Optional[str]:
+
+    def user_id_for_session_id(
+        self,
+        session_id: Optional[str] = None
+    ) -> Optional[str]:
         """
         Returns a User ID based on a session ID
         """
