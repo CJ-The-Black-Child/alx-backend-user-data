@@ -6,10 +6,10 @@ from os import getenv
 from api.v1.views import app_views
 from flask import Flask, jsonify, abort, request
 from flask_cors import (CORS, cross_origin)
-import os
 
 
 app = Flask(__name__)
+app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True
 app.register_blueprint(app_views)
 CORS(app, resources={r"/api/v1/*": {"origins": "*"}})
 
@@ -34,14 +34,14 @@ elif AUTH_TYPE == "session_exp_auth":
 
     auth = SessionExpAuth()
 
-elif AUTH_TYPE == "session_db_with":
+elif AUTH_TYPE == "session_db_auth":
     from api.v1.auth.session_db_auth import SessionDBAuth
 
-    auth = SessionDBAuth
+    auth = SessionDBAuth()
 
 
 @app.before_request
-def before_request_func():
+def before_request() -> str:
     """
     This function is executed before each request to the API.
     It checks if the request requires authentication and
@@ -53,7 +53,7 @@ def before_request_func():
         "/api/v1/status/",
         "/api/v1/unauthorized/",
         "/api/v1/forbidden/",
-        "/api/v1/auth_session/login"
+        "/api/v1/auth_session/login/"
     ]
     if not auth.require_auth(
         request.path, excluded_paths
@@ -68,9 +68,11 @@ def before_request_func():
     ):
         abort(401)
     # Assign the result of auth.current_user(request) to request.current_user
-    request.current_user = auth.current_user(request)
-    if request.current_user is None:
+    current_user = auth.current_user(request)
+    if current_user is None:
         abort(403)
+
+    request.current_user = current_user
 
 
 @app.errorhandler(404)
@@ -83,7 +85,7 @@ def not_found(error) -> str:
 
 
 @app.errorhandler(401)
-def unauthorized(error) -> str:
+def unauthorized_error(error) -> str:
     """
     Error handler for 401 error.
     Returns a JSON response with an error message.
@@ -94,7 +96,7 @@ def unauthorized(error) -> str:
 
 
 @app.errorhandler(403)
-def forbidden(error) -> str:
+def forbidden_error(error) -> str:
     """
     Error handler for 403 error.
     Returns a JSON response with an error message.
