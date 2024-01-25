@@ -26,11 +26,10 @@ class User(Base):
             str: A string representation of the User instance.
         """
         return (
-            f"< User(
-                email='{self.email}',
-                hashed_password='{self.hashed_password}', "
-                f"session_id='{self.session_id}',
-                reset_token='{self.reset_token}'
-            )
-            >"
+            f"< User("
+            f"email='{self.email}',"
+            f"hashed_password='{self.hashed_password}',"
+            f"session_id='{self.session_id}',"
+            f"reset_token='{self.reset_token}'"
+            f") >"
         )
