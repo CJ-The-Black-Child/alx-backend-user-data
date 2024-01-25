@@ -3,8 +3,10 @@
 This module handles database operations related to the User model.
 """
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm.session import Session
 from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.exc import InvalidRequestError
 from user import Base, User
 
 
@@ -66,7 +68,18 @@ class DB:
 
         Raises:
             NoResultFound: If no user is found.
+            InvalidRequestError: If no keyword arguments
+            are provided or if any key does not correspond
+            to a column name
         """
+        if not kwargs:
+            raise InvalidRequestError
+
+        column_names = User.__table__.columns.keys()
+        for key in kwargs.keys():
+            if key not in column_names:
+                raise InvalidRequestError
+
         user = self._session.query(User).filter_by(**kwargs).first()
 
         if user is None:
@@ -81,8 +94,16 @@ class DB:
         Args:
             user_id (int): The ID of the user to update.
             **kwargs: The attributes to update.
+
+        Raises:
+            ValueError: If any key does not correspond to a column name.
         """
         user = self.find_user_by(id=user_id)
+
+        column_names = User.__table__.columns.keys()
+        for key in kwargs.keys():
+            if key not in column_names:
+                raise ValueError
 
         for key, value in kwargs.items():
             setattr(user, key, value)
