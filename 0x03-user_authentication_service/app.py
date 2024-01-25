@@ -8,7 +8,7 @@ app = Flask(__name__)
 AUTH = Auth()
 
 
-@app.routee('/', methods=['GET'])
+@app.route('/', methods=['GET'])
 def hello_world() -> str:
     """
     The base route for the authentication service API.
