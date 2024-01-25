@@ -28,11 +28,10 @@ def register_user() -> str:
         str: A message indicating the result of the registration
         in JSON format.
     """
-    data = request.get_json()
-    email = data.get('email')
-    password = data.get('password')
-
-    if not email or not password:
+    try:
+        email = request.form['email']
+        password = request.form['password']
+    except KeyError:
         abort(400)
 
     try:
@@ -55,11 +54,13 @@ def log_in() -> str:
     Returns:
         str: A message indicating the result of the login in JSON format.
     """
-    data = request.get_json()
-    email = data.get('email')
-    password = data.get('password')
+    try:
+        email = request.form['email']
+        password = request.form['password']
+    except KeyError:
+        abort(400)
 
-    if not email or not password or not AUTH.valid_login(email, password):
+    if not AUTH.valid_login(email, password):
         abort(401)
 
     session_id = AUTH.create_session(email)
@@ -115,9 +116,9 @@ def reset_password() -> str:
     Returns:
     str: A message indicating the result of the operation in JSON format.
     """
-    email = request.get_json().get("email")
-
-    if email is None:
+    try:
+        email = request.form['email']
+    except KeyError:
         abort(403)
 
     try:
@@ -138,12 +139,11 @@ def update_password() -> str:
     Returns:
         str: A message indicating the result of the operation in JSON format.
     """
-    data = request.get_json()
-    email = data.get("email")
-    reset_token = data.get("reset_token")
-    new_password = data.get("new_password")
-
-    if not email or not reset_token or not new_password:
+    try:
+        email = request.form['email']
+        reset_token = request.form['reset_token']
+        new_password = request.form['new_password']
+    except KeyError:
         abort(400)
 
     try:
