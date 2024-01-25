@@ -42,9 +42,11 @@ class DB:
         Returns:
             User: The newly added user.
         """
-        user = self._session.query(User).filter_by(email=email).first()
-        if user is not None:
-            raise ValueError(f"User with email {email} already exists.")
+        # user = self._session.query(User).filter_by(email=email).first()
+        # if user is not None:
+        #    user.hashed_password = hashed_password
+        #    self._session.commit()
+        #    return user
 
         user = User(email=email, hashed_password=hashed_password)
         self._session.add(user)
